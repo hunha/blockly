@@ -64,6 +64,8 @@ else:
   from urllib.parse import urlencode
   from importlib import reload
 
+import ssl
+
 def import_path(fullpath):
   """Import a file with full path specification.
   Allows one to import from any directory, something __import__ does not do.
@@ -208,6 +210,7 @@ class Gen_compressed(threading.Thread):
       self.gen_generator("php")
       self.gen_generator("lua")
       self.gen_generator("dart")
+      self.gen_generator("java")
 
   def gen_core(self):
     target_filename = "blockly_compressed.js"
@@ -299,7 +302,9 @@ class Gen_compressed(threading.Thread):
   def do_compile(self, params, target_filename, filenames, remove):
     # Send the request to Google.
     headers = {"Content-type": "application/x-www-form-urlencoded"}
-    conn = httplib.HTTPSConnection("closure-compiler.appspot.com")
+    ssl_context = ssl.create_default_context()
+    conn = httplib.HTTPSConnection("10.84.10.11", 3128, context=ssl_context)
+    conn.set_tunnel("closure-compiler.appspot.com", 443)
     conn.request("POST", "/compile", urlencode(params), headers)
     response = conn.getresponse()
 
